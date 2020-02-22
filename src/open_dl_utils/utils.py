@@ -138,6 +138,13 @@ class FlattenLayer(nn.Module):
     def forward(self, x): # x shape: (batch, *, *, ...)
         return x.view(x.shape[0], -1)
 
+# 全局平均池化层可通过将池化窗口形状设置成输入的高和宽实现
+class GlobalAvgPool2d(nn.Module):
+    def __init__(self):
+        super(GlobalAvgPool2d, self).__init__()
+    def forward(self, x):
+        return F.avg_pool2d(x, kernel_size=x.size()[2:]) # kernel_size-> (h,w) -> output_size=1
+
 #作图函数，对比train和test的loss
 def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
              legend=None, figsize=(3.5, 2.5)):
