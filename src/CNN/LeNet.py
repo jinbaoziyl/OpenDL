@@ -16,12 +16,12 @@ class LeNet(nn.Module):
     def __init__(self):
         super(LeNet,self).__init__()
         self.conv = nn.Sequential(
-            nn.Conv2d(1,6,5),   # no padding -> 28 - 5 + 1 = 24
+            nn.Conv2d(1,6,5),   # p=0 s=1 -> 28 - 5 + 1 = 24
             nn.Sigmoid(),
-            nn.MaxPool2d(2,2),  # 24/2 = 12
-            nn.Conv2d(6,16,5),  # no padding -> 12 - 5 + 1 = 8  尺寸减少，增加输出通道使两个卷积层的参数尺寸类似
+            nn.MaxPool2d(2,2),  # p=0 s=2 -> 24/2 = 12
+            nn.Conv2d(6,16,5),  # p=0 s=1 -> 12 - 5 + 1 = 8  尺寸减少，增加输出通道使两个卷积层的参数尺寸类似
             nn.Sigmoid(),
-            nn.MaxPool2d(2,2),  # 8/2 = 4  ==> 16channes  h,w = 4,4
+            nn.MaxPool2d(2,2),  # p=0 s=2 -> 8/2 = 4  ==> 16channes  h,w = 4,4
         )
         self.fc = nn.Sequential(
             nn.Linear(16*4*4, 120),
@@ -34,7 +34,7 @@ class LeNet(nn.Module):
 
     def forward(self, img):
         feature = self.conv(img)
-        out = self.fc(feature.view(img.shape[0], -1))
+        out = self.fc(feature.view(img.shape[0], -1))  # batch size图像: [batch_size, flatten的图像数据]
         return out 
 
 if __name__ == '__main__':
