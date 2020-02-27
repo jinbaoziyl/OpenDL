@@ -63,7 +63,6 @@ class MobileNet(nn.Module):
     
     def forward(self, x):
         features = self.model(x)
-        print(features.shape)
         output = self.fc(features.view(-1, 1024))  #将最后一层卷积层 打平成全连接层输入
         return output
 
