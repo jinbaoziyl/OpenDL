@@ -66,20 +66,6 @@ class MobileNet(nn.Module):
         output = self.fc(features.view(-1, 1024))  #将最后一层卷积层 打平成全连接层输入
         return output
 
-def Speed(model, name):
-    t0 = time.time()
-    input = torch.rand(1,3,224,224).cuda()
-    input = Variable(input)  #Varibale 默认时不要求梯度的，如果要求梯度，需要说明
-
-    model(input)
-    t2 = time.time()
-
-    model(input)
-    t3 = time.time()
-
-    print('%10s : %f' % (name, t3 - t2))
-    #print(model)
-
 def MobileNetShape():
     net = MobileNet()
     print(net)
@@ -96,11 +82,11 @@ if __name__ == '__main__':
     squeezenet = models.squeezenet1_0().cuda()
     mobilenet = MobileNet().cuda()
 
-    Speed(resnet18, 'resnet18')
-    Speed(alexnet, 'alexnet')
-    Speed(vgg16, 'vgg16')
-    Speed(squeezenet, 'squeezenet')
-    Speed(mobilenet, 'mobilenet')
+    d2l.Speed(resnet18, 'resnet18')
+    d2l.Speed(alexnet, 'alexnet')
+    d2l.Speed(vgg16, 'vgg16')
+    d2l.Speed(squeezenet, 'squeezenet')
+    d2l.Speed(mobilenet, 'mobilenet')
 
     # mobileNet Shape
     MobileNetShape()

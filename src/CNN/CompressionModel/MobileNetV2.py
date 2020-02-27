@@ -127,7 +127,7 @@ class MobileNetV2(nn.Module):
 
     def forward(self, x):
         features = self.features(x)
-        output = self.fc(features.view(-1, self.last_channel))  #将最后一层卷积层 打平成全连接层输入
+        output = self.classifier(features.view(-1, self.last_channel))  #将最后一层卷积层 打平成全连接层输入
         return output
 
 
@@ -156,4 +156,7 @@ def MobileNetV2Shape():
 
 if __name__ == '__main__':
     MobileNetV2Shape()
+
+    mobilenet = MobileNetV2().cuda()
+    d2l.Speed(mobilenet, 'mobilenetV2')
     

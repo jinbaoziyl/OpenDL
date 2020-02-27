@@ -19,6 +19,7 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 import numpy as np
+from torch.autograd import Variable
 
 ####################### LinearRegression ############################
 def use_svg_display():
@@ -197,3 +198,17 @@ class Inception(nn.Module):
         if self.conv3:
             X = self.conv3(X)
         return F.relu(Y + X)
+
+def Speed(model, name):
+    t0 = time.time()
+    input = torch.rand(1,3,224,224).cuda()
+    input = Variable(input)  #Varibale 默认时不要求梯度的，如果要求梯度，需要说明
+
+    model(input)
+    t2 = time.time()
+
+    model(input)
+    t3 = time.time()
+
+    print('%10s : %f' % (name, t3 - t2))
+    #print(model)
