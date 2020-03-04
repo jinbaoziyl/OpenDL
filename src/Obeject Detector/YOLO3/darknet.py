@@ -46,7 +46,7 @@ def parse_cfg(cfgfile):
     lines = file.read().split('\n')     #store the lines in a list
     lines = [x for x in lines if len(x) > 0] #get read of the empty lines 
     lines = [x for x in lines if x[0] != '#']  
-    lines = [x.rstrip().lstrip() for x in lines]
+    lines = [x.rstrip().lstrip() for x in lines] #delete start/end character
 
     
     block = {}
