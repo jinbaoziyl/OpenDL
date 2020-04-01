@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "D:\\Anaconda3\\python.exe",
+    "python.pythonPath": "/home/linyang/anaconda3/bin/python",
     "python.testing.unittestArgs": [
         "-v",
         "-s",
