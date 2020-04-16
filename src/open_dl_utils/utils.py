@@ -287,3 +287,62 @@ def bbox_to_rect(bbox, color):
     return plt.Rectangle(
         xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
         fill=False, edgecolor=color, linewidth=2)
+
+def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
+    # Offset for the iterator over the data for uniform starts
+    offset = int(random.uniform(0,num_steps))
+    # Slice out data - ignore num_steps and just wrap around
+    num_indices = ((len(corpus_indices) - offset) // batch_size) * batch_size
+    indices = torch.tensor(corpus_indices[offset:(offset + num_indices)], dtype=torch.float32, device=ctx)
+    indices = indices.reshape((batch_size,-1))
+    # Need to leave one last token since targets are shifted by 1
+    num_epochs = ((num_indices // batch_size) - 1) // num_steps
+
+    for i in range(0, num_epochs * num_steps, num_steps):
+        X = indices[:,i:(i+num_steps)]
+        Y = indices[:,(i+1):(i+1+num_steps)]
+        yield X, Y
+
+def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
+    # Offset for the iterator over the data for uniform starts
+    offset = int(random.uniform(0,num_steps))
+    corpus_indices = corpus_indices[offset:]
+    # Subtract 1 extra since we need to account for the sequence length
+    num_examples = ((len(corpus_indices) - 1) // num_steps) - 1
+    # Discard half empty batches
+    num_batches = num_examples // batch_size
+    example_indices = list(range(0, num_examples * num_steps, num_steps))
+    random.shuffle(example_indices)
+
+    # This returns a sequence of the length num_steps starting from pos
+    def _data(pos):
+        return corpus_indices[pos: pos + num_steps]
+
+    for i in range(0, batch_size * num_batches, batch_size):
+        # Batch_size indicates the random examples read each time
+        batch_indices = example_indices[i:(i+batch_size)]
+        X = [_data(j) for j in batch_indices]
+        Y = [_data(j + 1) for j in batch_indices]
+        yield torch.Tensor(X,  device=ctx), torch.Tensor(Y,  device=ctx)
+
+# one-hot
+def one_hot(x, n_class, dtype=torch.float32): 
+    # X shape: (batch), output shape: (batch, n_class)
+    x = x.long()
+    res = torch.zeros(x.shape[0], n_class, dtype=dtype, device=x.device)
+    res.scatter_(1, x.view(-1, 1), 1)
+    return res
+
+def to_onehot(X, n_class):  
+    # X shape: (batch, seq_len), output: seq_len elements of (batch, n_class)
+    return [one_hot(X[:, i], n_class) for i in range(X.shape[1])]
+
+# 裁剪梯度
+def grad_clipping(params, theta, device):
+    norm = torch.tensor([0.0], device=device)
+    for param in params:
+        norm += (param.grad.data ** 2).sum()
+    norm = norm.sqrt().item()
+    if norm > theta:
+        for param in params:
+            param.grad.data *= (theta / norm)
